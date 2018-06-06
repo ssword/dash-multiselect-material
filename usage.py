@@ -20,7 +20,10 @@ names = [
 ]
 
 app.layout = html.Div([
-    dash_select_material.MultipleSelect(options=names)
+    dash_select_material.MultipleSelect(
+        options=names,
+        floatingLabel='Test Floating Label'
+    )
 ])
 
 

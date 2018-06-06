@@ -32,61 +32,31 @@ export default class MultiSelect extends Component {
       this.state = {
         value: props.value
       };
+      this.handleSelect = this.handleSelect.bind(this);
+
   }
 
   componentWillReceiveProps(newProps) {
-    this.setState({values: newProps.value});
+    this.setState({value: newProps.value});
   }
 
-  handleChange = (selectedValues, name) =>  {
-    console.log(name)
-    var clickedNode = selectedValues[selectedValues.length-1]
-    var clickedItem = clickedNode !== undefined ? clickedNode.value : null
-
+  handleChipDelete(key){
     this.setState({
-      values: selectedValues,
-      lastChecked: clickedItem
+      value: this.state['value'].filter(person => person.value!==key)
+    })
+    }
+  handleSelect = (selectedValues, name) => {
+    console.log(selectedValues)
+    console.log(name)
+    this.setState({
+      value: selectedValues
     });
   }
 
-  renderchips = () => (values) => (
-    <div
-    style = {styles.wrapper}
-    >
-      {
-        values.map(({ label, value}) => (
-          <Chip
-            key = {value}
-            label = {value}
-            style = {styles.chip}
-            onRequestDelete = {this.handleChipDelete(value)}
-            >
-            {value} {label}
-          </Chip>
-        ))
-      }
-      </div>)
-
-  handleChipDelete = (key, name) => (event) => {
-    console.log(name)
-    console.log(event)
-    this.setState({
-      values: this.state['values'].filter(person => person.value!==key)})
-    };
-
-  menuItems(options) {
-    return options.map((name) => (
-      <MenuItem
-        key={name}
-        checked={options && this.state.value.indexOf(name) > -1}
-        value={name}
-        primaryText={name}
-      />
-    ));
-  }
 
   render() {
-    const {id, floatingLabel, checkPosition, name, options, style} = this.props;
+    const {id, floatingLabel, checkPosition, name,
+       options, style, elementHeight} = this.props;
     const {value} = this.state;
     return (
       <MuiThemeProvider>
@@ -99,13 +69,38 @@ export default class MultiSelect extends Component {
             withResetSelectAllButtons
             checkPosition={checkPosition}
             floatingLabel={floatingLabel}
-            onSelect={this.handleChange}
+            onSelect = { this.handleSelect
+            }
             value={value}
-            elementHeight={58}
-            selectionsRenderer = {this.renderchips()}
+            elementHeight={elementHeight}
+            selectionsRenderer = { values => {
+              <div
+              style = {styles.wrapper}
+              >
+                {
+                  values.map(({ label, value}) => (
+                    <Chip
+                      key = {value}
+                      label = {value}
+                      style = {styles.chip}
+                      onRequestDelete = {this.handleChipDelete(value)}
+                      >
+                      {value} {label}
+                    </Chip>
+                  ))
+                }
+                </div>}}
             stlye={style}
           >
-            {this.menuItems(options)}
+            {
+              options.map((name) => (
+              <MenuItem
+                key={name}
+                checked={value && value.indexOf(name) > -1}
+                value={name}
+                primaryText={name}
+              />
+            ))}
           </SuperSelectField>
         </div>
       </section>
@@ -121,10 +116,14 @@ MultiSelect.propTypes = {
   floatingLabel: PropTypes.string,
   checkPosition: PropTypes.string,
   name: PropTypes.string,
-  style: PropTypes.object
+  style: PropTypes.object,
+  elementHeight: PropTypes.number
 }
 
 MultiSelect.defaultProps = {
-  style: {width: 300, marginTop: 20}
-  // options: ['a', 'b']
+  style: {width: 300, marginTop: 20},
+  checkPosition: 'left',
+  options: ['a', 'b'],
+  value: [],
+  elementHeight: 58
 }
